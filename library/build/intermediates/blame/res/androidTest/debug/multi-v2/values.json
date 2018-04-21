@@ -1,0 +1,26 @@
+{
+    "logs": [
+        {
+            "outputFile": "C:\\Users\\leehaneul\\Desktop\\HAT`S\\library\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\leehaneul\\Desktop\\HAT`S\\library\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "from": {
+                        "startLines": "-1,-1,-1,-1,8,9,-1,-1,-1,-1",
+                        "startColumns": "-1,-1,-1,-1,4,4,-1,-1,-1,-1",
+                        "startOffsets": "-1,-1,-1,-1,959,1015,-1,-1,-1,-1",
+                        "endColumns": "-1,-1,-1,-1,55,50,-1,-1,-1,-1",
+                        "endOffsets": "-1,-1,-1,-1,1010,1061,-1,-1,-1,-1"
+                    },
+                    "to": {
+                        "startLines": "4,5,6,7,8,9,10,11,12,13",
+                        "startColumns": "4,4,4,4,4,4,4,4,4,4",
+                        "startOffsets": "768,811,866,915,959,1015,1066,1123,1175,1226",
+                        "endColumns": "42,54,48,43,55,50,56,51,50,51",
+                        "endOffsets": "806,861,910,954,1010,1061,1118,1170,1221,1273"
+                    }
+                }
+            ]
+        }
+    ]
+}
