@@ -10,40 +10,44 @@ public class Protocol {
     private static final byte uvPacket = 0x01;
     private static final byte rgbPacket = 0x03;
     private static final byte streamingPacket = 0x04;
+    private static final byte moodLengthPacket = 0x05;
     private static final byte endPacket = (byte)0xff;
-    private static final byte onPacket = (byte)0xff;
+    private static final byte onPacket = (byte)0x01;
     private static final byte offPacket = (byte)0x00;
 
-    String byteToStr;
-    public String uvControl(){
+    public byte[] uvControl(){
         byte[] bytes = new byte[20];
         bytes[0] = startPacket;     // Start ID
         bytes[1] = uvPacket;        // Type ID
         bytes[2] = onPacket;
         bytes[3] = endPacket;
-
-        byteToStr = new String(bytes);
-        return byteToStr;
+        return bytes;
     }
-    public String RGBOnControl(){
+    public byte [] uvOffControl(){
+        byte[] bytes = new byte[20];
+        bytes[0] = startPacket;     // Start ID
+        bytes[1] = uvPacket;        // Type ID
+        bytes[2] = offPacket;
+        bytes[3] = endPacket;
+        return bytes;
+    }
+    public byte[] RGBOnControl(){
         byte[] bytes = new byte[20];
         bytes[0] = startPacket;     // Start ID
         bytes[1] = rgbPacket;        // Type ID
         bytes[2] = onPacket;
         bytes[3] = endPacket;
-        byteToStr = new String(bytes);
-        return byteToStr;
+        return bytes;
     }
-    public String RGBOffControl(){
+    public byte[] RGBOffControl(){
         byte[] bytes = new byte[20];
         bytes[0] = startPacket;     // Start ID
         bytes[1] = rgbPacket;        // Type ID
-        bytes[2] = endPacket;
+        bytes[2] = offPacket;
         bytes[3] = endPacket;
-        byteToStr = new String(bytes);
-        return byteToStr;
+        return bytes;
     }
-    public String RGBDataStreaming(int red, int green, int blue){
+    public byte[] RGBDataStreaming(int red, int green, int blue){
         byte[] bytes = new byte[20];
         bytes[0] = startPacket;     // Start ID
         bytes[1] = streamingPacket;        // Type ID
@@ -60,7 +64,16 @@ public class Protocol {
         bytes[12] = (byte)green;
         bytes[13] = (byte)blue;
         bytes[14] = endPacket;
-        byteToStr = new String(bytes);
-        return byteToStr;
+        return bytes;
+    }
+
+    public byte[] RGBDataMood(){
+        byte[] bytes = new byte[20];
+        bytes[0] = startPacket;     // Start ID
+        bytes[1] = moodLengthPacket;        // Type ID
+        bytes[2] = 0x3a;
+        bytes[3] = 0x3a;
+        bytes[14] = endPacket;
+        return bytes;
     }
 }

@@ -1,5 +1,6 @@
 package btcore.co.kr.hatsheal;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -13,22 +14,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
-import btcore.co.kr.hatsheal.bus.BusEvent;
 import btcore.co.kr.hatsheal.bus.BusEventPhoneToDevice;
-import btcore.co.kr.hatsheal.bus.BusProvider;
 import btcore.co.kr.hatsheal.bus.BusProviderPhoneToDevice;
 import btcore.co.kr.hatsheal.databinding.ActivityMainBinding;
 import btcore.co.kr.hatsheal.service.BluetoothLeService;
 import btcore.co.kr.hatsheal.service.HatService;
 import btcore.co.kr.hatsheal.view.Bluetooth.BluetoothActivity;
 import btcore.co.kr.hatsheal.view.lamp.LampActivity;
+import btcore.co.kr.hatsheal.view.lampani.LampAniActivity;
 import btcore.co.kr.hatsheal.view.mode.ModeActivity;
 import btcore.co.kr.hatsheal.view.setting.SettingActivity;
 import btcore.co.kr.hatsheal.view.sound.SoundActivity;
 import butterknife.OnClick;
+
+import static btcore.co.kr.hatsheal.service.BluetoothLeService.STATE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -41,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 2;
     private static final int UART_PROFILE_READY = 10;
     private int mState = UART_PROFILE_DISCONNECTED;
+    private BluetoothAdapter mBtAdapter = null;
+    String batteryType;
+
     HatService hatService;
     private boolean isService = false;
 
@@ -66,31 +72,37 @@ public class MainActivity extends AppCompatActivity {
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mainBinding.setMainActivity(this);
 
-        BusProvider.getInstance().register(this);
         BusProviderPhoneToDevice.getInstance().register(this);
 
+        // 블루투스 서비스 시작
         service_init();
     }
 
     @OnClick(R.id.btn_mode)
     public void onMode(View view){
         Intent intent = new Intent(getApplicationContext(), ModeActivity.class);
+        intent.putExtra("BATTERY", batteryType);
         startActivity(intent);
         finish();
     }
     @OnClick(R.id.btn_lamp)
     public void onLamp(View view){
         Intent intent = new Intent(getApplicationContext(), LampActivity.class);
+        intent.putExtra("BATTERY", batteryType);
         startActivity(intent);
         finish();
     }
     @OnClick(R.id.btn_lamp_ani)
     public void onLampAni(View view){
-        // 블루투스 요청
+        Intent intent = new Intent(getApplicationContext(), LampAniActivity.class);
+        intent.putExtra("BATTERY", batteryType);
+        startActivity(intent);
+        finish();
     }
     @OnClick(R.id.btn_sound)
     public void onSound(View view){
         Intent intent = new Intent(getApplicationContext(), SoundActivity.class);
+        intent.putExtra("BATTERY", batteryType);
         startActivity(intent);
         finish();
     }
@@ -100,82 +112,44 @@ public class MainActivity extends AppCompatActivity {
         overridePendingTransition(R.anim.pull_in_left, R.anim.push_out_right);
         finish();
     }
+    @OnClick(R.id.btn_disconnect)
+    public void onDisconnect(View view){
+       Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
+       startActivity(intent);
+       finish();
+    }
+
     @Subscribe
     public void FinishLoad(BusEventPhoneToDevice eventPhoneToDevice) {
-        Log.d(TAG, "데이터 수신" + String.valueOf(mService.getState()));
-        //if(mService.getState() == 2 && eventPhoneToDevice.getEventType() == 0) { sendCommand(eventPhoneToDevice.getEventData()); }
-       // if(mService.getState() == 2 && eventPhoneToDevice.getEventType() == 1) { sendCommand(eventPhoneToDevice.getEventData()); }
-    }
-    @Subscribe
-    public void FinishLoad(BusEvent mBusEvent) {
-
-        int mBattery = mBusEvent.getEventData();
-        Log.d(TAG, String.valueOf(mBattery));
-        switch (mBattery) {
-            case 0:
-                mainBinding.btnBattery1.setText("5%");
-                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery2.setBackgroundResource(0);
-                mainBinding.btnBattery3.setBackgroundResource(0);
-                mainBinding.btnBattery4.setBackgroundResource(0);
-                mainBinding.btnBattery5.setBackgroundResource(0);
-                break;
-            case 1:
-                mainBinding.btnBattery1.setText("25%");
-                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery3.setBackgroundResource(0);
-                mainBinding.btnBattery4.setBackgroundResource(0);
-                mainBinding.btnBattery5.setBackgroundResource(0);
-                break;
-            case 2:
-                mainBinding.btnBattery1.setText("50%");
-                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery4.setBackgroundResource(0);
-                mainBinding.btnBattery5.setBackgroundResource(0);
-                break;
-            case 3:
-                mainBinding.btnBattery1.setText("75%");
-                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery5.setBackgroundResource(0);
-                break;
-            case 4:
-                mainBinding.btnBattery1.setText("100%");
-                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
-                mainBinding.btnBattery5.setBackgroundResource(R.color.colorBattery);
-                break;
-
+        if(STATE) {
+            if(eventPhoneToDevice.getEventType() == 0) { send(eventPhoneToDevice.getEventData()); }
+            if(eventPhoneToDevice.getEventType() == 1) { send(eventPhoneToDevice.getEventData()); }
         }
     }
     @Override
     public void onBackPressed() {
             moveTaskToBack(true);
     }
-    public void sendCommand(String data) {
+    public void send(byte[] data) {
         mService.writeRXCharacteristic(data);
     }
-
-
     public void service_init() {
+        mBtAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBtAdapter == null) {
+            Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
         Intent bindIntent = new Intent(this, BluetoothLeService.class);
         bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         LocalBroadcastManager.getInstance(this).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
     }
-
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        intentFilter.addAction(BluetoothLeService.ACTION_BATTERY_VALUE);
         intentFilter.addAction(BluetoothLeService.DEVICE_DOES_NOT_SUPPORT_UART);
         return intentFilter;
     }
@@ -222,25 +196,60 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-
-
-            //*********************//
-            if (action.equals(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)) {
-                mService.enableTXNotification();
-            }
-            //*********************//
-            if (action.equals(BluetoothLeService.ACTION_DATA_AVAILABLE)) {
+            if (action.equals(BluetoothLeService.ACTION_BATTERY_VALUE)) {
+                batteryType = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        try {
+                        int type = Integer.parseInt(batteryType);
+                        switch (type) {
+                            case 0:
+                                mainBinding.btnBattery1.setText("5%");
+                                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery2.setBackgroundResource(0);
+                                mainBinding.btnBattery3.setBackgroundResource(0);
+                                mainBinding.btnBattery4.setBackgroundResource(0);
+                                mainBinding.btnBattery5.setBackgroundResource(0);
+                                break;
+                            case 1:
+                                mainBinding.btnBattery1.setText("25%");
+                                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery3.setBackgroundResource(0);
+                                mainBinding.btnBattery4.setBackgroundResource(0);
+                                mainBinding.btnBattery5.setBackgroundResource(0);
+                                break;
+                            case 2:
+                                mainBinding.btnBattery1.setText("50%");
+                                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery4.setBackgroundResource(0);
+                                mainBinding.btnBattery5.setBackgroundResource(0);
+                                break;
+                            case 3:
+                                mainBinding.btnBattery1.setText("75%");
+                                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery5.setBackgroundResource(0);
+                                break;
+                            case 4:
+                                mainBinding.btnBattery1.setText("100%");
+                                mainBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
+                                mainBinding.btnBattery5.setBackgroundResource(R.color.colorBattery);
+                                break;
 
-                        } catch (Exception e) {
-                            android.util.Log.e(TAG, e.toString());
                         }
                     }
                 });
             }
-            //*********************//
+            if (action.equals(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)) {
+                mService.enableTXNotification();
+            }
             if (action.equals(BluetoothLeService.DEVICE_DOES_NOT_SUPPORT_UART)) {
                 mService.disconnect();
             }
@@ -264,11 +273,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        BusProvider.getInstance().unregister(this);
         BusProviderPhoneToDevice.getInstance().unregister(this);
-
-        android.util.Log.d(TAG, "onDestroy()");
-
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(UARTStatusChangeReceiver);
         } catch (Exception ignore) {

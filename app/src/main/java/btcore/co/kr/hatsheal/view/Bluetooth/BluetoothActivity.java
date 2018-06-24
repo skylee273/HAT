@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -63,12 +64,10 @@ public class BluetoothActivity extends AppCompatActivity {
         bluetoothBinding = DataBindingUtil.setContentView(this, R.layout.activity_bluetooth);
         bluetoothBinding.setBluetoothActivity(this);
 
-        pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        pref = getSharedPreferences("HAT", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-
-        checkBle();
-
+        // 블루투스 서비스 시작
         service_init();
 
     }
@@ -78,11 +77,13 @@ public class BluetoothActivity extends AppCompatActivity {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         } else {
-            String address = pref.getString("deviceAddress", "");
-            if(mService == null && address.length() > 0){
+            String address = pref.getString("DEVICEADDRESS", "");
+            if(address.length() > 0){
+                ConnectionLoading = ProgressDialog.show(BluetoothActivity.this, "잠시 기다려주세요", "블루투스 연결중입니다.", true, false);
                 mService.connect(address);
+            }else{
+                Snackbar.make(getWindow().getDecorView().getRootView(), "현재 저장된 기기가 없습니다.", Snackbar.LENGTH_LONG).show();
             }
-
         }
     }
     @OnClick(R.id.btn_connect)
@@ -91,31 +92,23 @@ public class BluetoothActivity extends AppCompatActivity {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         } else {
-            if (connect_flag == false) {
-                Intent newIntent = new Intent(BluetoothActivity.this, DeviceListActivity.class);
-                startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
-            } else {
-                if (mDevice != null) {
-                    mService.disconnect();
-                }
-            }
+            Intent newIntent = new Intent(BluetoothActivity.this, DeviceListActivity.class);
+            startActivityForResult(newIntent, REQUEST_SELECT_DEVICE);
         }
     }
 
-    private void checkBle(){
+    public void service_init() {
         mBtAdapter = BluetoothAdapter.getDefaultAdapter();
         if (mBtAdapter == null) {
             Toast.makeText(this, "Bluetooth is not available", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
-    }
-
-    public void service_init() {
         Intent bindIntent = new Intent(this, BluetoothLeService.class);
         bindService(bindIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
         LocalBroadcastManager.getInstance(this).registerReceiver(UARTStatusChangeReceiver, makeGattUpdateIntentFilter());
     }
+
     private final BroadcastReceiver UARTStatusChangeReceiver = new BroadcastReceiver() {
 
         public void onReceive(Context context, Intent intent) {
@@ -124,14 +117,9 @@ public class BluetoothActivity extends AppCompatActivity {
             if (action.equals(BluetoothLeService.ACTION_GATT_CONNECTED)) {
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        if (ConnectionLoading != null) {
-                            ConnectionLoading.dismiss();
-                        }
-                        connect_flag = true;
+                        if (ConnectionLoading != null) { ConnectionLoading.dismiss(); }
                         mState = UART_PROFILE_CONNECTED;
-
                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                        intent.putExtra("device","Test");
                         startActivity(intent);
                         finish();
 
@@ -142,31 +130,17 @@ public class BluetoothActivity extends AppCompatActivity {
             if (action.equals(BluetoothLeService.ACTION_GATT_DISCONNECTED)) {
                 runOnUiThread(new Runnable() {
                     public void run() {
-
-                        connect_flag = false;
-                        android.util.Log.d(TAG, "UART_DISCONNECT_MSG");
+                        if (ConnectionLoading != null) { ConnectionLoading.dismiss(); }
+                        Snackbar.make(getWindow().getDecorView().getRootView(), "연결에 실패했습니다. 다시 연결해주세요", Snackbar.LENGTH_LONG).show();
                         mState = UART_PROFILE_DISCONNECTED;
                         mService.close();
                     }
                 });
             }
 
+
             if (action.equals(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)) {
                 mService.enableTXNotification();
-            }
-
-            if (action.equals(BluetoothLeService.ACTION_DATA_AVAILABLE)) {
-
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        try {
-                            String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
-                            Log.d(TAG, "ACTION_DATA_AVAILABLE : " + currentDateTimeString);
-                        } catch (Exception e) {
-                            android.util.Log.e(TAG, e.toString());
-                        }
-                    }
-                });
             }
             if (action.equals(BluetoothLeService.DEVICE_DOES_NOT_SUPPORT_UART)) {
                 String currentDateTimeString = DateFormat.getTimeInstance().format(new Date());
@@ -176,7 +150,7 @@ public class BluetoothActivity extends AppCompatActivity {
         }
     };
 
-    public void sendCommand(String data) {
+    public void send(byte[] data) {
         mService.writeRXCharacteristic(data);
     }
 
@@ -186,7 +160,6 @@ public class BluetoothActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         intentFilter.addAction(BluetoothLeService.DEVICE_DOES_NOT_SUPPORT_UART);
         return intentFilter;
     }
@@ -227,34 +200,13 @@ public class BluetoothActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        android.util.Log.d(TAG, "onStop");
-        super.onStop();
-    }
-
-    @Override
-    protected void onPause() {
-        android.util.Log.d(TAG, "onPause");
-        super.onPause();
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        android.util.Log.d(TAG, "onRestart");
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
-
-        android.util.Log.d(TAG, "onResume");
         if (!mBtAdapter.isEnabled()) {
             android.util.Log.i(TAG, "onResume - BT not enabled yet");
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
         }
-
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
@@ -271,36 +223,23 @@ public class BluetoothActivity extends AppCompatActivity {
                     ConnectionLoading = ProgressDialog.show(BluetoothActivity.this, "잠시 기다려주세요", "블루투스 연결중입니다.", true, false);
                     String deviceAddress = data.getStringExtra(BluetoothDevice.EXTRA_DEVICE);
                     mDevice = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(deviceAddress);
-
                     if (deviceAddress != null) {
-                        editor.remove("deviceAddress");
-                        editor.putString("deviceAddress", deviceAddress);
+                        editor.putString("DEVICEADDRESS", deviceAddress);
                         editor.commit();
                     }
-
-
-                    Log.d(TAG, "... onActivityResultdevice.address==" + mDevice + "mserviceValue" + mService);
-                    //((TextView) findViewById(R.id.tag_name)).setText(mDevice.getName() );
                     try {
                         mService.connect(deviceAddress);
-
                     } catch (NullPointerException e) {
                         e.printStackTrace();
-                        Toast.makeText(this, "해당기기가 없습니다.", Toast.LENGTH_SHORT).show();
                     }
-
-
                 }
                 break;
             case REQUEST_ENABLE_BT:
                 // When the request to enable Bluetooth returns
                 if (resultCode == Activity.RESULT_OK) {
-                    Toast.makeText(this, "블루투스를 활성화 했습니다.", Toast.LENGTH_SHORT).show();
-
+                   // Toast.makeText(this, "블루투스를 활성화 했습니다.", Toast.LENGTH_SHORT).show();
                 } else {
-                    // User did not enable Bluetooth or an error occurred
-                    android.util.Log.d(TAG, "BT not enabled");
-                    Toast.makeText(this, "블루투스를 활성화 해주세요", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(this, "블루투스를 활성화 해주세요", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 break;
@@ -313,7 +252,6 @@ public class BluetoothActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-
         if (mState == UART_PROFILE_CONNECTED) {
             moveTaskToBack(true);
         } else {

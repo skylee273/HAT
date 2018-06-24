@@ -57,25 +57,26 @@ public class HatService extends Service {
 
         protocol = new Protocol();
 
-        pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        pref = getSharedPreferences("HAT", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        if(mTimer == null){
-            Log.d(TAG, "Timer Start");
+        if (mTimer == null) {
             MainTimerTask timerTask = new MainTimerTask();
             mTimer = new Timer();
-            mTimer.schedule(timerTask, 0, 60000);
+            mTimer.schedule(timerTask, 0, 5000);
         }
 
 
     }
+
     public int onStartCommand(Intent intent, int flags, int startId) {
         return super.onStartCommand(intent, flags, startId);
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if(mTimer != null){
+        if (mTimer != null) {
             mTimer.cancel();
         }
 
@@ -89,31 +90,50 @@ public class HatService extends Service {
             String strHour = String.format("%02d", hour());
             String strMin = String.format("%02d", min());
 
-            try {
-                String LampTime[] = pref.getString("TIME","").split("-");
-                String RGB[] = pref.getString("RGB","").split("-");
-                String Alarm[] = pref.getString("ALARMTIME","").split("-");
-                boolean alarmState = pref.getBoolean("ALARMSTATE",false);
-                boolean lampState = pref.getBoolean("LAMPSTATE",false);
-                Log.d(TAG, "cHour = " + strHour + " cMin = " + strMin + "   UvHour = " + Alarm[0] + "   UvMin = " + Alarm[1] );
-                Log.d(TAG, "cHour = " + strHour + " cMin = " + strMin + "   LampTimeStart = " + LampTime[0] + "   LampTimeEnd = " + LampTime[1] );
+            boolean alarmState = pref.getBoolean("ALARMSTATE", false);
+            boolean lampState = pref.getBoolean("LAMPSTATE", false);
 
-                if (alarmState == true && Alarm[0].equals(strHour) && Alarm[1].equals(strMin)){   BusProviderPhoneToDevice.getInstance().post(new BusEventPhoneToDevice(protocol.uvControl(), 0));       }
-                if (lampState == true && LampTime[0].equals(strHour + " : " + strMin))       {   BusProviderPhoneToDevice.getInstance().post(new BusEventPhoneToDevice(protocol.RGBOnControl(), 1));    }
-                if (lampState == true && LampTime[1].equals(strHour + " : " + strMin))       {   BusProviderPhoneToDevice.getInstance().post(new BusEventPhoneToDevice(protocol.RGBOffControl(), 1));   }
-            }catch (NullPointerException e){
-                Log.d(TAG,e.toString());
-            }catch (ArrayIndexOutOfBoundsException e){
-                Log.d(TAG, e.toString());
-            }
-
-
+            if(alarmState) { Alarm(strHour, strMin); }
+            if(lampState) { LED(strHour, strMin); }
 
         }
     };
+
     class MainTimerTask extends TimerTask {
         public void run() {
             mHandler.post(mUpdateTimeTask);
+        }
+    }
+
+    private void LED(String strHour, String strMin) {
+        try {
+            String LampTime[] = pref.getString("TIME", "").split("-");
+            String RGB[] = pref.getString("RGB", "").split("-");
+            if (LampTime.length > 0 && RGB.length > 0) {
+                Log.d(TAG, "cHour = " + strHour + " cMin = " + strMin + "   LampTimeStart = " + LampTime[0] + "   LampTimeEnd = " + LampTime[1]);
+                if (LampTime[0].equals(strHour + " : " + strMin)) {
+                    BusProviderPhoneToDevice.getInstance().post(new BusEventPhoneToDevice(protocol.RGBDataStreaming(Integer.parseInt(RGB[0]),Integer.parseInt(RGB[1]),Integer.parseInt(RGB[2])), 1));
+                }
+                if (LampTime[1].equals(strHour + " : " + strMin)) {
+                    BusProviderPhoneToDevice.getInstance().post(new BusEventPhoneToDevice(protocol.RGBOffControl(), 1));
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, e.toString());
+        }
+    }
+
+    private void Alarm(String strHour, String strMin) {
+        try {
+            String alarm[] = pref.getString("ALARMTIME", "").split("-");
+            if ( alarm.length > 0) {
+                Log.d(TAG, " cHour = " + strHour + " cMin = " + strMin + "   UvHour = " + alarm[0] + "   UvMin = " + alarm[1]);
+                if (alarm[0].contains(strHour) && alarm[1].contains(strMin)) {
+                    BusProviderPhoneToDevice.getInstance().post(new BusEventPhoneToDevice(protocol.uvControl(), 0));
+                }
+            }
+        } catch (Exception e) {
+            Log.d(TAG, e.toString());
         }
     }
 

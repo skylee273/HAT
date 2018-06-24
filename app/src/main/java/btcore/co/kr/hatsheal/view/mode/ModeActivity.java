@@ -37,6 +37,8 @@ import btcore.co.kr.hatsheal.view.Bluetooth.BluetoothActivity;
 import btcore.co.kr.hatsheal.view.lamp.LampActivity;
 import butterknife.OnClick;
 
+import static btcore.co.kr.hatsheal.service.BluetoothLeService.STATE;
+
 /**
  * Created by leehaneul on 2018-04-18.
  */
@@ -57,16 +59,18 @@ public class ModeActivity extends AppCompatActivity {
     private int mState = UART_PROFILE_DISCONNECTED;
     HatService hatService;
     private boolean isService = false;
+    String batteryType;
 
     ActivityModeBinding modeBinding;
 
     ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            HatService.HatBinder mb = (HatService.HatBinder)service;
+            HatService.HatBinder mb = (HatService.HatBinder) service;
             hatService = mb.getService();
             isService = true;
         }
+
         @Override
         public void onServiceDisconnected(ComponentName name) {
             isService = false;
@@ -81,103 +85,50 @@ public class ModeActivity extends AppCompatActivity {
         modeBinding = DataBindingUtil.setContentView(this, R.layout.activity_mode);
         modeBinding.setModeActivity(this);
 
-        pref = getSharedPreferences("pref", Activity.MODE_PRIVATE);
+        pref = getSharedPreferences("HAT", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
-        BusProvider.getInstance().register(this);
         BusProviderPhoneToDevice.getInstance().register(this);
-        saveView();
 
-        service_init();
+        try {
+            alarm = pref.getBoolean("ALARMSTATE", false);
+            String date[] = pref.getString("ALARMTIME", "").split("-");
 
-    }
-
-    private void saveView(){
-        try{
-            alarm = pref.getBoolean("ALARMSTATE",false);
-            String date[] = pref.getString("ALARMTIME","").split("-");
-
-            if(alarm == false){
+            if (alarm == false) {
                 modeBinding.btnOff.setBackgroundResource(R.drawable.icon_circle);
                 modeBinding.btnOn.setBackgroundResource(0);
-            }else{
+            } else {
                 modeBinding.btnOn.setBackgroundResource(R.drawable.icon_circle);
                 modeBinding.btnOff.setBackgroundResource(0);
             }
 
-            if(date != null){
+            if (date != null) {
 
                 hour = Integer.parseInt(date[0]);
                 min = Integer.parseInt(date[1]);
-                if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M){
+                if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                     modeBinding.timepicker.setHour(hour);
                     modeBinding.timepicker.setMinute(min);
-                }else{
+                } else {
                     modeBinding.timepicker.setCurrentHour(hour);
                     modeBinding.timepicker.setCurrentMinute(min);
                 }
 
             }
-        }catch (NullPointerException e ){
-            Log.d(TAG,e.toString());
-        }catch (NumberFormatException e ){
-            Log.d(TAG,e.toString());
+        } catch (NullPointerException e) {
+            Log.d(TAG, e.toString());
+        } catch (NumberFormatException e) {
+            Log.d(TAG, e.toString());
         }
 
+        service_init();
+
+        Intent intent = getIntent();
+        batteryType = intent.getStringExtra("BATTERY");
+        batteryUpload(Integer.parseInt(batteryType));
     }
-    @OnClick(R.id.btn_on)
-    public void onAlarmOn(View view) {
-        modeBinding.btnOn.setBackgroundResource(R.drawable.icon_circle);
-        modeBinding.btnOff.setBackgroundResource(0);
-        alarm = true;
-    }
-
-    @OnClick(R.id.btn_off)
-    public void onAlarmOff(View view) {
-        modeBinding.btnOff.setBackgroundResource(R.drawable.icon_circle);
-        modeBinding.btnOn.setBackgroundResource(0);
-        alarm = false;
-    }
-
-    @OnClick(R.id.btn_back)
-    public void onAlarmBack(View view) {
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    @SuppressLint("DefaultLocale")
-    @OnClick(R.id.btn_save)
-    public void onAlarmSave(View view){
-
-        if(Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M){
-            hour =  modeBinding.timepicker.getHour();
-            min = modeBinding.timepicker.getMinute();
-        }else{
-            hour = modeBinding.timepicker.getCurrentHour();
-            min = modeBinding.timepicker.getCurrentMinute();
-        }
-
-        editor.putString("ALARMTIME", String.format("%02d",hour) + "-" + String.format("%02d",min));
-        editor.putBoolean("ALARMSTATE",alarm);
-        editor.commit();
-
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
-    @Subscribe
-    public void FinishLoad(BusEventPhoneToDevice eventPhoneToDevice) {
-        Log.d(TAG, "데이터 수신" + String.valueOf(mService.getState()));
-        //if(mService.getState() == 2 && eventPhoneToDevice.getEventType() == 0) { sendCommand(eventPhoneToDevice.getEventData()); }
-        //if(mService.getState() == 2 && eventPhoneToDevice.getEventType() == 1) { sendCommand(eventPhoneToDevice.getEventData()); }
-    }
-    @Subscribe
-    public void FinishLoad(BusEvent mBusEvent) {
-
-        int mBattery = mBusEvent.getEventData();
-        Log.d(TAG, String.valueOf(mBattery));
-        switch (mBattery) {
+    private void batteryUpload(int type){
+        switch (type){
             case 0:
                 modeBinding.btnBattery1.setText("5%");
                 modeBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
@@ -218,13 +169,70 @@ public class ModeActivity extends AppCompatActivity {
                 modeBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
                 modeBinding.btnBattery5.setBackgroundResource(R.color.colorBattery);
                 break;
-
         }
     }
+
+    @OnClick(R.id.btn_on)
+    public void onAlarmOn(View view) {
+        modeBinding.btnOn.setBackgroundResource(R.drawable.icon_circle);
+        modeBinding.btnOff.setBackgroundResource(0);
+        alarm = true;
+    }
+
+    @OnClick(R.id.btn_off)
+    public void onAlarmOff(View view) {
+        modeBinding.btnOff.setBackgroundResource(R.drawable.icon_circle);
+        modeBinding.btnOn.setBackgroundResource(0);
+        alarm = false;
+    }
+
+    @OnClick(R.id.btn_back)
+    public void onAlarmBack(View view) {
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+    @OnClick(R.id.btn_disconnect)
+    public void onDisconnect(View view) {
+        Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @SuppressLint("DefaultLocale")
+    @OnClick(R.id.btn_save)
+    public void onAlarmSave(View view) {
+
+        if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            hour = modeBinding.timepicker.getHour();
+            min = modeBinding.timepicker.getMinute();
+        } else {
+            hour = modeBinding.timepicker.getCurrentHour();
+            min = modeBinding.timepicker.getCurrentMinute();
+        }
+
+        editor.putString("ALARMTIME", String.format("%02d", hour) + "-" + String.format("%02d", min));
+        editor.putBoolean("ALARMSTATE", alarm);
+        editor.commit();
+
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    @Subscribe
+    public void FinishLoad(BusEventPhoneToDevice eventPhoneToDevice) {
+        if(STATE) {
+            if(eventPhoneToDevice.getEventType() == 0) { send(eventPhoneToDevice.getEventData()); }
+            if(eventPhoneToDevice.getEventType() == 1) { send(eventPhoneToDevice.getEventData()); }
+        }
+
+    }
+
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
-        if(isService == false){
+        if (isService == false) {
             Intent intent = new Intent(
                     ModeActivity.this, // 현재 화면
                     HatService.class); // 다음넘어갈 컴퍼넌트
@@ -234,10 +242,10 @@ public class ModeActivity extends AppCompatActivity {
         }
 
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
-        BusProvider.getInstance().unregister(this);
         BusProviderPhoneToDevice.getInstance().unregister(this);
         android.util.Log.d(TAG, "onDestroy()");
 
@@ -246,7 +254,7 @@ public class ModeActivity extends AppCompatActivity {
         } catch (Exception ignore) {
             android.util.Log.e(TAG, ignore.toString());
         }
-        if(isService == true){
+        if (isService == true) {
             unbindService(connection);
             isService = false;
         }
@@ -256,6 +264,7 @@ public class ModeActivity extends AppCompatActivity {
         }
 
     }
+
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -263,7 +272,7 @@ public class ModeActivity extends AppCompatActivity {
         finish();
     }
 
-    public void sendCommand(String data) {
+    public void send(byte[] data) {
         mService.writeRXCharacteristic(data);
     }
 
@@ -279,8 +288,8 @@ public class ModeActivity extends AppCompatActivity {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         intentFilter.addAction(BluetoothLeService.DEVICE_DOES_NOT_SUPPORT_UART);
+        intentFilter.addAction(BluetoothLeService.ACTION_BATTERY_VALUE);
         return intentFilter;
     }
 
@@ -318,33 +327,65 @@ public class ModeActivity extends AppCompatActivity {
                         android.util.Log.d(TAG, "UART_DISCONNECT_MSG");
                         mState = UART_PROFILE_DISCONNECTED;
                         mService.close();
-
-                        Intent intent1 = new Intent(getApplicationContext(), BluetoothActivity.class);
-                        startActivity(intent1);
+                        Intent Intent = new Intent(getApplicationContext(), BluetoothActivity.class);
+                        startActivity(Intent);
                         finish();
-
                     }
                 });
             }
-
-
-            //*********************//
-            if (action.equals(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)) {
-                mService.enableTXNotification();
-            }
-            //*********************//
-            if (action.equals(BluetoothLeService.ACTION_DATA_AVAILABLE)) {
+            if (action.equals(BluetoothLeService.ACTION_BATTERY_VALUE)) {
+                final String Type = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        try {
-
-                        } catch (Exception e) {
-                            android.util.Log.e(TAG, e.toString());
+                        int type = Integer.parseInt(Type);
+                        switch (type) {
+                            case 0:
+                                modeBinding.btnBattery1.setText("5%");
+                                modeBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery2.setBackgroundResource(0);
+                                modeBinding.btnBattery3.setBackgroundResource(0);
+                                modeBinding.btnBattery4.setBackgroundResource(0);
+                                modeBinding.btnBattery5.setBackgroundResource(0);
+                                break;
+                            case 1:
+                                modeBinding.btnBattery1.setText("25%");
+                                modeBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery3.setBackgroundResource(0);
+                                modeBinding.btnBattery4.setBackgroundResource(0);
+                                modeBinding.btnBattery5.setBackgroundResource(0);
+                                break;
+                            case 2:
+                                modeBinding.btnBattery1.setText("50%");
+                                modeBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery4.setBackgroundResource(0);
+                                modeBinding.btnBattery5.setBackgroundResource(0);
+                                break;
+                            case 3:
+                                modeBinding.btnBattery1.setText("75%");
+                                modeBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery5.setBackgroundResource(0);
+                                break;
+                            case 4:
+                                modeBinding.btnBattery1.setText("100%");
+                                modeBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
+                                modeBinding.btnBattery5.setBackgroundResource(R.color.colorBattery);
+                                break;
                         }
                     }
                 });
             }
-            //*********************//
+            if (action.equals(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)) {
+                mService.enableTXNotification();
+            }
             if (action.equals(BluetoothLeService.DEVICE_DOES_NOT_SUPPORT_UART)) {
                 mService.disconnect();
             }

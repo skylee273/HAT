@@ -132,11 +132,12 @@
     </LinearLayout>
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btn_disconnect"
         android:layout_width="19dp"
         android:layout_height="19dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="21dp"
+        android:onClick="@{MainActivity::onDisconnect}"
         android:background="@drawable/menusetup_07"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

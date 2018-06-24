@@ -6,15 +6,15 @@ package btcore.co.kr.hatsheal.bus;
 
 public class BusEventPhoneToDevice {
 
-    private String eventData;
+    private byte [] eventData;
     private int eventType;
 
-    public BusEventPhoneToDevice(String eventData, int type) {
+    public BusEventPhoneToDevice(byte [] eventData, int type) {
         this.eventData = eventData;
         this.eventType = type;
     }
 
-    public String getEventData() {
+    public byte[] getEventData() {
         return eventData;
     }
     public int getEventType() {

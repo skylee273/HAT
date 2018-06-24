@@ -1,4 +1,4 @@
-package btcore.co.kr.hatsheal.view.lamp;
+package btcore.co.kr.hatsheal.view.lampani;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -10,45 +10,36 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
 import com.christophesmet.android.views.colorpicker.ColorPickerView;
-import com.squareup.otto.Subscribe;
 
 import btcore.co.kr.hatsheal.MainActivity;
 import btcore.co.kr.hatsheal.R;
-import btcore.co.kr.hatsheal.bus.BusEvent;
 import btcore.co.kr.hatsheal.bus.BusEventPhoneToDevice;
-import btcore.co.kr.hatsheal.bus.BusProvider;
 import btcore.co.kr.hatsheal.bus.BusProviderPhoneToDevice;
 import btcore.co.kr.hatsheal.databinding.ActivityLampBinding;
+import btcore.co.kr.hatsheal.databinding.ActivityLampaniBinding;
 import btcore.co.kr.hatsheal.service.BluetoothLeService;
 import btcore.co.kr.hatsheal.service.HatService;
 import btcore.co.kr.hatsheal.util.TimePickerFragment;
 import btcore.co.kr.hatsheal.view.Bluetooth.BluetoothActivity;
+import btcore.co.kr.hatsheal.view.lamp.Lamp;
+import btcore.co.kr.hatsheal.view.lamp.LampActivity;
 import btcore.co.kr.hatsheal.view.lamp.presenter.LampPresenter;
 import butterknife.OnClick;
 
 import static btcore.co.kr.hatsheal.service.BluetoothLeService.STATE;
 
-/**
- * Created by leehaneul on 2018-04-19.
- */
-
-public class LampActivity extends AppCompatActivity implements ColorPickerView.ColorListener, Lamp.View {
+public class LampAniActivity extends AppCompatActivity {
 
     private final String TAG = getClass().getSimpleName();
-    private String Red = null, Green = null, Blue = null;
-    private boolean lampState;
     private SharedPreferences.Editor editor;
     private SharedPreferences pref = null;
     HatService hatService;
@@ -62,8 +53,7 @@ public class LampActivity extends AppCompatActivity implements ColorPickerView.C
     private int mState = UART_PROFILE_DISCONNECTED;
     String batteryType;
 
-    Lamp.Presenter presenter;
-    ActivityLampBinding lampBinding;
+    ActivityLampaniBinding activityLampaniBinding;
 
     ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -82,30 +72,13 @@ public class LampActivity extends AppCompatActivity implements ColorPickerView.C
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        lampBinding = DataBindingUtil.setContentView(this, R.layout.activity_lamp);
-        lampBinding.setLampActivity(this);
-
-        lampBinding.colorpicker.setColorListener(this);
-        presenter = new LampPresenter(this);
+        activityLampaniBinding = DataBindingUtil.setContentView(this, R.layout.activity_lampani);
+        activityLampaniBinding.setLampAniActivity(this);
 
         pref = getSharedPreferences("HAT", Activity.MODE_PRIVATE);
         editor = pref.edit();
 
         BusProviderPhoneToDevice.getInstance().register(this);
-
-        try{
-            String Time[] = pref.getString("TIME","").split("-");
-            boolean state = pref.getBoolean("LAMPSTATE", false);
-            if(Time != null && !Time[0].equals("") && !Time[1].equals("")) { lampBinding.textStart.setText(Time[0]); lampBinding.textEnd.setText(Time[1]); }
-            if(state) { lampBinding.imageOn.setImageResource(R.drawable.icon_circle);   lampBinding.imageOff.setImageResource(0); lampState = true; }
-            else { lampBinding.imageOn.setImageResource(0);   lampBinding.imageOff.setImageResource(R.drawable.icon_circle); }
-        }catch (NullPointerException e ){
-            Log.d(TAG,e.toString());
-        }catch (NumberFormatException e ){
-            Log.d(TAG,e.toString());
-        }catch (ArrayIndexOutOfBoundsException e){
-            Log.d(TAG, e.toString());
-        }
 
         service_init();
 
@@ -118,117 +91,69 @@ public class LampActivity extends AppCompatActivity implements ColorPickerView.C
     private void batteryUpload(int type){
         switch (type){
             case 0:
-                lampBinding.btnBattery1.setText("5%");
-                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery2.setBackgroundResource(0);
-                lampBinding.btnBattery3.setBackgroundResource(0);
-                lampBinding.btnBattery4.setBackgroundResource(0);
-                lampBinding.btnBattery5.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery1.setText("5%");
+                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery2.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery3.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery4.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery5.setBackgroundResource(0);
                 break;
             case 1:
-                lampBinding.btnBattery1.setText("25%");
-                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery3.setBackgroundResource(0);
-                lampBinding.btnBattery4.setBackgroundResource(0);
-                lampBinding.btnBattery5.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery1.setText("25%");
+                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery3.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery4.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery5.setBackgroundResource(0);
                 break;
             case 2:
-                lampBinding.btnBattery1.setText("50%");
-                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery4.setBackgroundResource(0);
-                lampBinding.btnBattery5.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery1.setText("50%");
+                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery4.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery5.setBackgroundResource(0);
                 break;
             case 3:
-                lampBinding.btnBattery1.setText("75%");
-                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery5.setBackgroundResource(0);
+                activityLampaniBinding.btnBattery1.setText("75%");
+                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery5.setBackgroundResource(0);
                 break;
             case 4:
-                lampBinding.btnBattery1.setText("100%");
-                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
-                lampBinding.btnBattery5.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery1.setText("100%");
+                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
+                activityLampaniBinding.btnBattery5.setBackgroundResource(R.color.colorBattery);
                 break;
         }
     }
 
     @OnClick(R.id.btn_back)
-    public void onLampBack(View view) {
+    public void onBack(View view) {
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         startActivity(intent);
         finish();
     }
 
-    @OnClick(R.id.btn_save)
-    public void onLampSave(View view) {
-        presenter.setLamp(Red, Green, Blue, lampBinding.textStart.getText().toString(), lampBinding.textEnd.getText().toString(), lampState);
-    }
-
-    @OnClick(R.id.text_start)
-    public void onStartTime(View view) {
-        TimePickerFragment timePickerFragment = new TimePickerFragment();
-        timePickerFragment.onState(0);
-        timePickerFragment.show(getSupportFragmentManager(), "TIME_TAG");
-    }
-
-    @OnClick(R.id.text_end)
-    public void onEndTime(View view) {
-        TimePickerFragment timePickerFragment = new TimePickerFragment();
-        timePickerFragment.onState(1);
-        timePickerFragment.show(getSupportFragmentManager(), "TIME_TAG");
-    }
-
-    @OnClick(R.id.image_on)
-    public void onTimeOn(View view) {
-        lampBinding.imageOn.setImageResource(R.drawable.icon_circle);
-        lampBinding.imageOff.setImageResource(0);
-        lampState = true;
-    }
-
-    @OnClick(R.id.image_off)
-    public void onTimeOff(View view) {
-        lampBinding.imageOff.setImageResource(R.drawable.icon_circle);
-        lampBinding.imageOn.setImageResource(0);
-        lampState = false;
-    }
     @OnClick(R.id.btn_disconnect)
     public void onDisconnect(View view) {
         Intent intent = new Intent(getApplicationContext(), BluetoothActivity.class);
         startActivity(intent);
         finish();
     }
-    @Override
-    public void onColorSelected(int i) {
-        Red = String.valueOf(Color.red(i));
-        Green = String.valueOf(Color.green(i));
-        Blue = String.valueOf(Color.blue(i));
-    }
-
-    @Override
-    public void NextActivity() {
-
-        editor.putString("RGB", Red + "-" + Green + "-" + Blue);
-        editor.putString("TIME", lampBinding.textStart.getText().toString() + "-" + lampBinding.textEnd.getText().toString());
-        editor.putBoolean("LAMPSTATE",lampState);
-        editor.commit();
-
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+    @OnClick(R.id.image_title)
+    public void onTest(View view) {
+        Intent intent = new Intent(getApplicationContext(), PattenActivity.class);
         startActivity(intent);
         finish();
     }
 
-    @Override
-    public void showErrorMessage(String msg) {
-        Snackbar.make(getWindow().getDecorView().getRootView(), msg, Snackbar.LENGTH_SHORT).show();
-    }
+
     public void FinishLoad(BusEventPhoneToDevice eventPhoneToDevice) {
         if(STATE) {
             if(eventPhoneToDevice.getEventType() == 0) { send(eventPhoneToDevice.getEventData()); }
@@ -241,7 +166,7 @@ public class LampActivity extends AppCompatActivity implements ColorPickerView.C
         super.onResume();
         if(isService == false){
             Intent intent = new Intent(
-                    LampActivity.this, // 현재 화면
+                    LampAniActivity.this, // 현재 화면
                     HatService.class); // 다음넘어갈 컴퍼넌트
             bindService(intent, // intent 객체
                     connection, // 서비스와 연결에 대한 정의
@@ -341,44 +266,44 @@ public class LampActivity extends AppCompatActivity implements ColorPickerView.C
                         int type = Integer.parseInt(Type);
                         switch (type) {
                             case 0:
-                                lampBinding.btnBattery1.setText("5%");
-                                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery2.setBackgroundResource(0);
-                                lampBinding.btnBattery3.setBackgroundResource(0);
-                                lampBinding.btnBattery4.setBackgroundResource(0);
-                                lampBinding.btnBattery5.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery1.setText("5%");
+                                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery2.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery3.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery4.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery5.setBackgroundResource(0);
                                 break;
                             case 1:
-                                lampBinding.btnBattery1.setText("25%");
-                                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery3.setBackgroundResource(0);
-                                lampBinding.btnBattery4.setBackgroundResource(0);
-                                lampBinding.btnBattery5.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery1.setText("25%");
+                                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery3.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery4.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery5.setBackgroundResource(0);
                                 break;
                             case 2:
-                                lampBinding.btnBattery1.setText("50%");
-                                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery4.setBackgroundResource(0);
-                                lampBinding.btnBattery5.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery1.setText("50%");
+                                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery4.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery5.setBackgroundResource(0);
                                 break;
                             case 3:
-                                lampBinding.btnBattery1.setText("75%");
-                                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery5.setBackgroundResource(0);
+                                activityLampaniBinding.btnBattery1.setText("75%");
+                                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery5.setBackgroundResource(0);
                                 break;
                             case 4:
-                                lampBinding.btnBattery1.setText("100%");
-                                lampBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
-                                lampBinding.btnBattery5.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery1.setText("100%");
+                                activityLampaniBinding.btnBattery1.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery2.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery3.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery4.setBackgroundResource(R.color.colorBattery);
+                                activityLampaniBinding.btnBattery5.setBackgroundResource(R.color.colorBattery);
                                 break;
 
                         }

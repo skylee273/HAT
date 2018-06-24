@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="LampAniActivity"
+            type="btcore.co.kr.hatsheal.view.lampani.LampAniActivity"/>
+    </data>
+
+
+<android.support.constraint.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:background="@color/colorDefaultBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="100"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani1"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_pattern" />
+
+                    <TextView
+                        android:id="@+id/text_ani1"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="PATTERN"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_aniperson" />
+
+                    <TextView
+                        android:id="@+id/text_ani2"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="ROMANCE"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani3"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_anifire" />
+
+                    <TextView
+                        android:id="@+id/text_ani3"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="CANDLE"
+                        android:textColor="@color/colorSaveButton"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani4"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_pattern" />
+
+                    <TextView
+                        android:id="@+id/text_ani4"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="PATTERN"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani5"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_pattern" />
+
+                    <TextView
+                        android:id="@+id/text_ani5"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="PATTERN"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani6"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_pattern" />
+
+                    <TextView
+                        android:id="@+id/text_ani6"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="PATTERN"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani7"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_pattern" />
+
+                    <TextView
+                        android:id="@+id/text_ani7"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="PATTERN"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani8"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_pattern" />
+
+                    <TextView
+                        android:id="@+id/text_ani8"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="PATTERN"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="258"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="25"
+                        android:orientation="vertical"></LinearLayout>
+
+                    <Button
+                        android:id="@+id/btn_ani9"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="110"
+                        android:background="@drawable/icon_pattern" />
+
+                    <TextView
+                        android:id="@+id/text_ani9"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="34"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:text="PATTERN"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="54"
+                    android:orientation="vertical"></LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="15"
+            android:background="@color/colorSaveButton"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/text_pattern"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:text="절벽위의 다섯마을과 드라미틱한 해안길 눈부신 풍경"
+                android:textColor="#ffffff" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_disconnect"
+        android:layout_width="19dp"
+        android:layout_height="19dp"
+        android:layout_marginEnd="25dp"
+        android:onClick="@{LampAniActivity::onDisconnect}"
+        android:layout_marginTop="21dp"
+        android:background="@drawable/menusetup_07"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_title"
+        android:layout_width="153dp"
+        android:layout_height="19dp"
+        android:layout_marginTop="21dp"
+        android:onClick="@{LampAniActivity::onTest}"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/logo_ani" />
+
+    <Button
+        android:id="@+id/btn_back"
+        android:layout_width="26dp"
+        android:layout_height="18dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="22dp"
+        android:background="@drawable/icon_back2"
+        android:onClick="@{LampAniActivity::onBack}"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="26dp"
+        android:layout_marginTop="62dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/btn_battery5"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#06babd"
+            android:text="BATTERY"
+            android:textColor="#ffffff" />
+
+        <Button
+            android:id="@+id/btn_battery4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#06babd" />
+
+        <Button
+            android:id="@+id/btn_battery3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#06babd" />
+
+        <Button
+            android:id="@+id/btn_battery2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#06babd" />
+
+        <Button
+            android:id="@+id/btn_battery1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="#06babd"
+            android:textColor="#ffffff" />
+    </LinearLayout>
+
+
+
+</android.support.constraint.ConstraintLayout>
+
+</layout>

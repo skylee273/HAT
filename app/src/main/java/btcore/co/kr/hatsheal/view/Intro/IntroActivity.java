@@ -40,7 +40,8 @@ public class IntroActivity extends AppCompatActivity {
                 TedPermission.with(mContext)
                         .setPermissionListener(permissionlistener)
                         .setDeniedMessage("만약 서비스를 허용하지 않으시면 앱 이용시에 제한이 있습니다.\n\n 권한을 설정 해주세요 [설정] > [권한]")
-                        .setPermissions(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.RECORD_AUDIO, Manifest.permission.CALL_PHONE)
+                        .setPermissions(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.RECORD_AUDIO, Manifest.permission.CALL_PHONE,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         .check();
             }
         }, SPLASH_TIME_OUT);
@@ -51,7 +52,7 @@ public class IntroActivity extends AppCompatActivity {
         public void onPermissionGranted() {
 
             // MainActivity.class 자리에 다음에 넘어갈 액티비티를 넣어주기
-            Intent intent = new Intent(mContext, MainActivity.class);
+            Intent intent = new Intent(mContext, BluetoothActivity.class);
             startActivity(intent);
             finish();
         }
